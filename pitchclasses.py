@@ -11,6 +11,8 @@ class PitchClasses:
     def _m_transformed(self, i):
         return [(pc * i) % self.univ for pc in self.pcs]
 
+    def _retrograded(self):
+        return self.pcs[::-1]
 
 class PitchClassSet(PitchClasses):
     def __init__(self, pcs, univ=0):
@@ -97,6 +99,12 @@ class PitchClassSequence(PitchClasses):
 
     def m_transform(self, i):
         self.set_pcs(self._m_transformed(i))
+
+    def retrograded(self):
+        return PitchClassSequence(self._retrograded(), univ=self.univ)
+
+    def retrograde(self):
+        self.set_pcs(self._retrograded())
 
     def pc_inventory(self):
         inventory = set(self.pcs)

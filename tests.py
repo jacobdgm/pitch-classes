@@ -197,6 +197,23 @@ class PitchClassSequenceTest(unittest.TestCase):
         self.assertIsInstance(returned_0, PitchClassSet)
         self.assertEqual(returned_0.pcs, [0, 1, 2])
 
+    def test_private_retrograded(self):
+        test_set = PitchClassSequence([0, 1, 2, 0])
+        returned_0 = test_set._retrograded()
+        self.assertIsInstance(returned_0, list)
+        self.assertEqual(returned_0, [0, 2, 1, 0])
+
+    def test_retrograded(self):
+        test_set = PitchClassSequence([0, 1, 3, 0])
+        returned_0 = test_set.retrograded()
+        self.assertIsInstance(returned_0, PitchClassSequence)
+        self.assertEqual(returned_0.pcs, [0, 3, 1, 0])
+
+    def test_retrograde(self):
+        test_set = PitchClassSequence([0, 1, 4, 0])
+        test_set.retrograde()
+        self.assertEqual(test_set.pcs, [0, 4, 1, 0])
+
 
 if __name__ == "__main__":
     unittest.main(exit=False)

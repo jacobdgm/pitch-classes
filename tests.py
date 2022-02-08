@@ -1,5 +1,10 @@
 import unittest
-from pitchclasses import PitchClassSet, PitchClassSequence, IntervalVector
+from pitchclasses import (
+    PitchClassSet,
+    PitchClassSequence,
+    IntervalVector,
+    IntervalSequence,
+)
 
 
 class PitchClassSetTest(unittest.TestCase):
@@ -213,6 +218,15 @@ class PitchClassSequenceTest(unittest.TestCase):
         test_sequence = PitchClassSequence([0, 1, 4, 0])
         test_sequence.retrograde()
         self.assertEqual(test_sequence.pcs, [0, 4, 1, 0])
+
+    def test_intervals(self):
+        test_sequence_0 = PitchClassSequence([0, 1, 3])
+        returned_0 = test_sequence_0.intervals()
+        self.assertIsInstance(returned_0, IntervalSequence)
+        self.assertEqual(returned_0.intervals, [1, 2])
+        test_sequence_1 = PitchClassSequence([3, 1, 0])
+        returned_1 = test_sequence_1.intervals()
+        self.assertEqual(returned_1.intervals, [10, 11])
 
 
 if __name__ == "__main__":

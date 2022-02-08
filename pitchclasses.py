@@ -14,6 +14,16 @@ class PitchClasses:
     def _retrograded(self):
         return self.pcs[::-1]
 
+
+class Intervals:
+    def __init__(self, intervals, univ=0):
+        if univ == 0:
+            self.univ = PC_UNIVERSE
+        else:
+            self.univ = univ
+        self.intervals = intervals
+
+
 class PitchClassSet(PitchClasses):
     def __init__(self, pcs, univ=0):
         if univ == 0:
@@ -81,6 +91,7 @@ class PitchClassSequence(PitchClasses):
 
     def set_pcs(self, pcs):
         self.pcs = [pc % self.univ for pc in pcs]
+        self.length = len(self.pcs)
 
     def transposed(self, i):
         return PitchClassSequence(self._transposed(i), univ=self.univ)
@@ -110,14 +121,18 @@ class PitchClassSequence(PitchClasses):
         inventory = set(self.pcs)
         return PitchClassSet(inventory, self.univ)
 
+    def intervals(self):
+        ivals = []
+        for i in range(1, self.length):
+            ivals.append((self.pcs[i] - self.pcs[i - 1]) % self.univ)
+        return IntervalSequence(ivals, self.univ)
 
-class IntervalVector:
-    def __init__(self, intervals, univ=0):
-        if univ == 0:
-            self.univ = PC_UNIVERSE
-        else:
-            self.univ = univ
-        self.intervals = intervals
 
+class IntervalVector(Intervals):
     def __repr__(self):
         return "IntervalVector " + str(self.intervals)
+
+
+class IntervalSequence(Intervals):
+    def __repr__(self):
+        return "IntervalSequence " + str(self.intervals)

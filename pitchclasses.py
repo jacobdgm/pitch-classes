@@ -33,7 +33,7 @@ class PitchClassSet(PitchClasses):
         self.set_pcs(pcs)
 
     def __repr__(self):
-        return "PitchClassSet " + str(self.pcs)
+        return 'PitchClassSet {}{}'.format(self.univ, self.pcs)
 
     def set_pcs(self, pcs):
         pcs = [pc % self.univ for pc in pcs]
@@ -87,7 +87,7 @@ class PitchClassSequence(PitchClasses):
         self.set_pcs(pcs)
 
     def __repr__(self):
-        return "PitchClassSequence " + str(self.pcs)
+        return "PitchClassSequence {}{}".format(self.univ, self.pcs)
 
     def set_pcs(self, pcs):
         self.pcs = [pc % self.univ for pc in pcs]
@@ -130,9 +130,15 @@ class PitchClassSequence(PitchClasses):
 
 class IntervalVector(Intervals):
     def __repr__(self):
-        return "IntervalVector " + str(self.intervals)
+        return "IntervalVector {}{}".format(self.univ, self.intervals)
 
 
 class IntervalSequence(Intervals):
     def __repr__(self):
-        return "IntervalSequence " + str(self.intervals)
+        return "IntervalSequence {}{}".format(self.univ, self.intervals)
+
+    def melody(self, starting_pc):
+        mel = [starting_pc]
+        for i in self.intervals:
+            mel.append((mel[-1] + i) % self.univ)
+        return PitchClassSequence(mel, self.univ)

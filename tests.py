@@ -229,5 +229,15 @@ class PitchClassSequenceTest(unittest.TestCase):
         self.assertEqual(returned_1.intervals, [10, 11])
 
 
+class IntervalsSequenceTest(unittest.TestCase):
+    def test_melody(self):
+        test_sequence_0 = IntervalSequence([1, 2])
+        returned_0 = test_sequence_0.melody(0)
+        self.assertIsInstance(returned_0, PitchClassSequence)
+        self.assertEqual(returned_0.pcs, [0, 1, 3])
+        returned_1 = test_sequence_0.melody(11)
+        self.assertEqual(returned_1.pcs, [11, 0, 2])
+
+
 if __name__ == "__main__":
     unittest.main(exit=False)

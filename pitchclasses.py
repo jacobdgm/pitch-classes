@@ -32,13 +32,54 @@ class PitchClassSet(PitchClasses):
             self.univ = univ
         self.set_pcs(pcs)
 
-    def __repr__(self):
-        return 'PitchClassSet {}{}'.format(self.univ, self.pcs)
-
     def set_pcs(self, pcs):
         pcs = [pc % self.univ for pc in pcs]
         self.pcs = sorted(set(pcs))
         self.cardinality = len(self.pcs)
+
+    def __repr__(self):
+        return "PitchClassSet {}{}".format(self.univ, self.pcs)
+
+    def __sub__(self, pc_set):
+        exception = self._check_valid_pitch_class_set(pc_set)
+        if exception is not None:
+            raise exception
+        else:
+            difference = set(self.pcs) - set(pc_set.pcs)
+            return PitchClassSet(difference)
+
+    def __and__(self, pc_set):
+        exception = self._check_valid_pitch_class_set(pc_set)
+        if exception is not None:
+            raise exception
+        else:
+            intersection = set(self.pcs) & set(pc_set.pcs)
+            return PitchClassSet(intersection)
+
+    def __xor__(self, pc_set):
+        exception = self._check_valid_pitch_class_set(pc_set)
+        if exception is not None:
+            raise exception
+        else:
+            sym_diff = set(self.pcs) ^ set(pc_set.pcs)
+            return PitchClassSet(sym_diff)
+
+    def __or__(self, pc_set):
+        exception = self._check_valid_pitch_class_set(pc_set)
+        if exception is not None:
+            raise exception
+        else:
+            union = set(self.pcs) | set(pc_set.pcs)
+            return PitchClassSet(union)
+
+    def _check_valid_pitch_class_set(self, pc_set):
+        if not isinstance(pc_set, PitchClassSet):
+            return TypeError("Only a PitchClassSet can be compared to a PitchClassSet")
+        elif pc_set.univ != self.univ:
+            return ValueError(
+                "Cannot compare PitchClassSets with different values of .univ"
+            )
+        return None
 
     def transposed(self, i):
         return PitchClassSet(self._transposed(i), univ=self.univ)

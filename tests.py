@@ -175,6 +175,28 @@ class PitchClassSequenceTest(unittest.TestCase):
         test_sequence.set_pcs([0, 1, 0])
         self.assertEqual(test_sequence.pcs, [0, 1, 0])
 
+    def test_magic_add(self):
+        test_sequence_0 = PitchClassSequence([0, 1, 2])
+        test_sequence_1 = PitchClassSequence([1, 2])
+        returned_0 = test_sequence_0 + test_sequence_1
+        self.assertIsInstance(returned_0, PitchClassSequence)
+        self.assertEqual(returned_0.pcs, [0, 1, 2, 1, 2])
+        returned_1 = test_sequence_1 + test_sequence_0
+        self.assertEqual(returned_1.pcs, [1, 2, 0, 1, 2])
+
+    def test_extend(self):
+        test_sequence_0 = PitchClassSequence([0, 1, 2])
+        test_sequence_1 = PitchClassSequence([1, 2])
+        test_sequence_0.extend(test_sequence_1)
+        self.assertEqual(test_sequence_0.pcs, [0, 1, 2, 1, 2])
+
+    def test_append(self):
+        test_sequence_0 = PitchClassSequence([0, 1, 2])
+        test_sequence_0.append(5)
+        self.assertEqual(test_sequence_0.pcs, [0, 1, 2, 5])
+        with self.assertRaises(TypeError):
+            test_sequence_0.append(4.0)
+
     def test_private_transposed(self):
         test_sequence = PitchClassSequence([0, 1, 0])
         returned_0 = test_sequence._transposed(1)

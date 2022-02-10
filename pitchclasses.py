@@ -127,12 +127,48 @@ class PitchClassSequence(PitchClasses):
             self.univ = univ
         self.set_pcs(pcs)
 
-    def __repr__(self):
-        return "PitchClassSequence {}{}".format(self.univ, self.pcs)
-
     def set_pcs(self, pcs):
         self.pcs = [pc % self.univ for pc in pcs]
         self.length = len(self.pcs)
+
+    def __repr__(self):
+        return "PitchClassSequence {}{}".format(self.univ, self.pcs)
+
+    def __add__(self, pc_sequence):
+        exception = self._check_valid_pitch_class_sequence(pc_sequence)
+        if exception is not None:
+            raise exception
+        else:
+            combined_sequence = self.pcs + pc_sequence.pcs
+            return PitchClassSequence(combined_sequence, univ=self.univ)
+
+    def extend(self, pc_sequence):
+        exception = self._check_valid_pitch_class_sequence(pc_sequence)
+        if exception is not None:
+            raise exception
+        else:
+            combined_sequence = self.pcs + pc_sequence.pcs
+            self.set_pcs(combined_sequence)
+
+    def append(self, pc):
+        if not isinstance(pc, int):
+            raise TypeError('Only an int can be added to a PitchClassSequence')
+        else:
+            pc_sequence = self.pcs
+            pc_sequence.append(pc)
+            self.set_pcs(pc_sequence)
+        
+
+    def _check_valid_pitch_class_sequence(self, pc_sequence):
+        if not isinstance(pc_sequence, PitchClassSequence):
+            return TypeError(
+                "Only a PitchClassSequence can be compared to a PitchClassSequence"
+            )
+        elif pc_sequence.univ != self.univ:
+            return ValueError(
+                "Cannot compare PitchClassSequences with different values of .univ"
+            )
+        return None
 
     def transposed(self, i):
         return PitchClassSequence(self._transposed(i), univ=self.univ)

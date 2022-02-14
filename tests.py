@@ -4,6 +4,7 @@ from pitchclasses import (
     PitchClassSequence,
     IntervalVector,
     IntervalSequence,
+    aggregate,
 )
 
 
@@ -140,6 +141,44 @@ class PitchClassSetTest(unittest.TestCase):
         self.assertEqual(test_set.pcs, [0, 5, 10])
         test_set.m_transform(11)
         self.assertEqual(test_set.pcs, [0, 2, 7])
+
+    def test_private_as_univ(self):
+        test_set = aggregate(5)
+        with self.assertRaises(ValueError):
+            test_set._as_univ(12)  # default mode should be 'e'
+        returned_0 = test_set._as_univ(12, "d")
+        self.assertIsInstance(returned_0, list)
+        self.assertEqual(returned_0, [0])
+        returned_1 = test_set._as_univ(12, "f")
+        self.assertEqual(returned_1, [0, 2, 4, 7, 9])
+        returned_2 = test_set._as_univ(12, "r")
+        self.assertEqual(returned_2, [0, 2, 5, 7, 10])
+        returned_3 = test_set._as_univ(12, "c")
+        self.assertEqual(returned_3, [0, 3, 5, 8, 10])
+
+    def test_as_univ(self):
+        test_set = aggregate(7)
+        with self.assertRaises(ValueError):
+            test_set._as_univ(12)  # default mode should be 'e'
+        returned_0 = test_set.as_univ(12, "d")
+        self.assertIsInstance(returned_0, PitchClassSet)
+        self.assertEqual(returned_0.univ, 12)
+        self.assertEqual(returned_0.pcs, [0])
+        returned_1 = test_set.as_univ(12, "f")
+        self.assertEqual(returned_1.pcs, [0, 1, 3, 5, 6, 8, 10])
+        returned_2 = test_set.as_univ(12, "r")
+        self.assertEqual(returned_2.pcs, [0, 2, 3, 5, 7, 9, 10])
+        returned_3 = test_set.as_univ(12, "c")
+        self.assertEqual(returned_3.pcs, [0, 2, 4, 6, 7, 9, 11])
+
+    def test_set_univ(self):
+        test_set_0 = aggregate(3)
+        test_set_0.set_univ(6)
+        self.assertEqual(test_set_0.univ, 6)
+        self.assertEqual(test_set_0.pcs, [0, 2, 4])
+        test_set_1 = PitchClassSet([0, 4, 7, 10])
+        test_set_1.set_univ(6, "d")
+        self.assertEqual(test_set_1.pcs, [0, 2, 5])
 
     def test_complement(self):
         test_set_0 = PitchClassSet([0, 1, 2])
@@ -289,6 +328,24 @@ class PitchClassSequenceTest(unittest.TestCase):
         test_sequence.retrograde()
         self.assertEqual(test_sequence.pcs, [0, 4, 1, 0])
 
+    def test_private_as_univ(self):
+        test_sequence = PitchClassSequence([0, 2, 4, 0])
+        returned = test_sequence._as_univ(6)
+        self.assertIsInstance(returned, list)
+        self.assertEqual(returned, [0, 1, 2, 0])
+
+    def test_as_univ(self):
+        test_sequence = PitchClassSequence([0, 1, 2, 0], univ=8)
+        returned = test_sequence.as_univ(16)
+        self.assertIsInstance(returned, PitchClassSequence)
+        self.assertEqual(returned.pcs, [0, 2, 4, 0])
+
+    def test_set_univ(self):
+        test_sequence = PitchClassSequence([7, 7, 7, 3])
+        test_sequence.set_univ(24)
+        self.assertEqual(test_sequence.univ, 24)
+        self.assertEqual(test_sequence.pcs, [14, 14, 14, 6])
+
     def test_intervals(self):
         test_sequence_0 = PitchClassSequence([0, 1, 3])
         returned_0 = test_sequence_0.intervals()
@@ -307,6 +364,17 @@ class IntervalsSequenceTest(unittest.TestCase):
         self.assertEqual(returned_0.pcs, [0, 1, 3])
         returned_1 = test_sequence_0.melody(11)
         self.assertEqual(returned_1.pcs, [11, 0, 2])
+
+
+class FunctionsTest(unittest.TestCase):
+    def test_aggregate(self):
+        returned_0 = aggregate(12)
+        self.assertIsInstance(returned_0, PitchClassSet)
+        self.assertEqual(returned_0.pcs, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+        self.assertEqual(returned_0.univ, 12)
+        returned_1 = aggregate(4)
+        self.assertEqual(returned_1.pcs, [0, 1, 2, 3])
+        self.assertEqual(returned_1.univ, 4)
 
 
 if __name__ == "__main__":

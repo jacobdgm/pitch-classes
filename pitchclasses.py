@@ -1,3 +1,5 @@
+from math import ceil, floor
+
 PC_UNIVERSE = 12
 
 
@@ -13,6 +15,25 @@ class PitchClasses:
 
     def _retrograded(self):
         return self.pcs[::-1]
+
+    def _as_univ(self, u, mode="e"):
+        multiplier = u / self.univ
+        new_pcs = [x * multiplier for x in self.pcs]
+        if mode == "exception" or mode == "e":
+            for pc in new_pcs:
+                if int(pc) != pc:
+                    raise ValueError(
+                        "pitch class {} does not exist in a universe of size {}.".format(pc, u)
+                    )
+            return [int(x) for x in new_pcs]
+        elif mode == "drop" or mode == "d":
+            return [int(x) for x in new_pcs if x == int(x)]
+        elif mode == "ceiling" or mode == "ceil" or mode == "c":
+            return [ceil(x) for x in new_pcs]
+        elif mode == "round" or mode == "r":
+            return [round(x) for x in new_pcs]
+        elif mode == "floor" or mode == "f":
+            return [floor(x) for x in new_pcs]
 
 
 class Intervals:
@@ -99,6 +120,14 @@ class PitchClassSet(PitchClasses):
     def m_transform(self, i):
         self.set_pcs(self._m_transformed(i))
 
+    def as_univ(self, u, mode="e"):
+        return PitchClassSet(self._as_univ(u, mode=mode), univ=u)
+
+    def set_univ(self, u, mode="e"):
+        new_pcs = self._as_univ(u, mode=mode)
+        self.univ = u
+        self.set_pcs(new_pcs)
+
     def complement(self):
         comp = [pc for pc in range(self.univ) if pc not in self.pcs]
         return PitchClassSet(comp, univ=self.univ)
@@ -152,12 +181,11 @@ class PitchClassSequence(PitchClasses):
 
     def append(self, pc):
         if not isinstance(pc, int):
-            raise TypeError('Only an int can be added to a PitchClassSequence')
+            raise TypeError("Only an int can be added to a PitchClassSequence")
         else:
             pc_sequence = self.pcs
             pc_sequence.append(pc)
             self.set_pcs(pc_sequence)
-        
 
     def _check_valid_pitch_class_sequence(self, pc_sequence):
         if not isinstance(pc_sequence, PitchClassSequence):
@@ -194,6 +222,14 @@ class PitchClassSequence(PitchClasses):
     def retrograde(self):
         self.set_pcs(self._retrograded())
 
+    def as_univ(self, u, mode="e"):
+        return PitchClassSequence(self._as_univ(u, mode=mode), univ=u)
+
+    def set_univ(self, u, mode="e"):
+        new_pcs = self._as_univ(u, mode=mode)
+        self.univ = u
+        self.set_pcs(new_pcs)
+
     def pc_inventory(self):
         inventory = set(self.pcs)
         return PitchClassSet(inventory, self.univ)
@@ -219,3 +255,7 @@ class IntervalSequence(Intervals):
         for i in self.intervals:
             mel.append((mel[-1] + i) % self.univ)
         return PitchClassSequence(mel, self.univ)
+
+
+def aggregate(univ=PC_UNIVERSE):
+    return PitchClassSet([x for x in range(univ)], univ=univ)

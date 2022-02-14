@@ -4,6 +4,13 @@ PC_UNIVERSE = 12
 
 
 class PitchClasses:
+    def __init__(self, pcs, univ=0):
+        if univ == 0:
+            self.univ = PC_UNIVERSE
+        else:
+            self.univ = univ
+        self.set_pcs(pcs)
+
     def _transposed(self, i):
         return [(self.pcs[x] + i) % self.univ for x, _ in enumerate(self.pcs)]
 
@@ -23,7 +30,9 @@ class PitchClasses:
             for pc in new_pcs:
                 if int(pc) != pc:
                     raise ValueError(
-                        "pitch class {} does not exist in a universe of size {}.".format(pc, u)
+                        "pitch class {} does not exist in a universe of size {}.".format(
+                            pc, u
+                        )
                     )
             return [int(x) for x in new_pcs]
         elif mode == "drop" or mode == "d":
@@ -46,13 +55,6 @@ class Intervals:
 
 
 class PitchClassSet(PitchClasses):
-    def __init__(self, pcs, univ=0):
-        if univ == 0:
-            self.univ = PC_UNIVERSE
-        else:
-            self.univ = univ
-        self.set_pcs(pcs)
-
     def set_pcs(self, pcs):
         pcs = [pc % self.univ for pc in pcs]
         self.pcs = sorted(set(pcs))
@@ -149,13 +151,6 @@ class PitchClassSet(PitchClasses):
 
 
 class PitchClassSequence(PitchClasses):
-    def __init__(self, pcs, univ=0):
-        if univ == 0:
-            self.univ = PC_UNIVERSE
-        else:
-            self.univ = univ
-        self.set_pcs(pcs)
-
     def set_pcs(self, pcs):
         self.pcs = [pc % self.univ for pc in pcs]
         self.length = len(self.pcs)
@@ -263,5 +258,5 @@ def aggregate(univ=PC_UNIVERSE):
 
 def maximally_distributed(i, univ=PC_UNIVERSE):
     pc_set = aggregate(i)
-    pc_set.set_univ(univ, 'f')
+    pc_set.set_univ(univ, "f")
     return pc_set

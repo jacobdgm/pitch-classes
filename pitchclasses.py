@@ -45,15 +45,6 @@ class PitchClasses:
             return [floor(x) for x in new_pcs]
 
 
-class Intervals:
-    def __init__(self, intervals, univ=0):
-        if univ == 0:
-            self.univ = PC_UNIVERSE
-        else:
-            self.univ = univ
-        self.intervals = intervals
-
-
 class PitchClassSet(PitchClasses):
     def set_pcs(self, pcs):
         pcs = [pc % self.univ for pc in pcs]
@@ -236,12 +227,26 @@ class PitchClassSequence(PitchClasses):
         return IntervalSequence(ivals, self.univ)
 
 
-class IntervalVector(Intervals):
+class IntervalVector:
+    def __init__(self, intervals, univ=0):
+        if univ == 0:
+            self.univ = PC_UNIVERSE
+        else:
+            self.univ = univ
+        self.intervals = intervals
+
     def __repr__(self):
         return "IntervalVector {}{}".format(self.univ, self.intervals)
 
 
-class IntervalSequence(Intervals):
+class IntervalSequence:
+    def __init__(self, intervals, univ=0):
+        if univ == 0:
+            self.univ = PC_UNIVERSE
+        else:
+            self.univ = univ
+        self.intervals = intervals
+
     def __repr__(self):
         return "IntervalSequence {}{}".format(self.univ, self.intervals)
 

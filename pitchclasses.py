@@ -259,3 +259,9 @@ class IntervalSequence(Intervals):
 
 def aggregate(univ=PC_UNIVERSE):
     return PitchClassSet([x for x in range(univ)], univ=univ)
+
+
+def maximally_distributed(i, univ=PC_UNIVERSE):
+    pc_set = aggregate(i)
+    pc_set.set_univ(univ, 'f')
+    return pc_set

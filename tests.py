@@ -5,6 +5,7 @@ from pitchclasses import (
     IntervalVector,
     IntervalSequence,
     aggregate,
+    maximally_distributed,
 )
 
 
@@ -375,6 +376,16 @@ class FunctionsTest(unittest.TestCase):
         returned_1 = aggregate(4)
         self.assertEqual(returned_1.pcs, [0, 1, 2, 3])
         self.assertEqual(returned_1.univ, 4)
+
+    def test_maximally_distributed(self):
+        returned_0 = maximally_distributed(7)
+        self.assertIsInstance(returned_0, PitchClassSet)
+        self.assertEqual(returned_0.pcs, [0, 1, 3, 5, 6, 8, 10])
+        returned_1 = maximally_distributed(5)
+        self.assertEqual(returned_1.pcs, [0, 2, 4, 7, 9])
+        returned_2 = maximally_distributed(3, 7)
+        self.assertEqual(returned_2.univ, 7)
+        self.assertEqual(returned_2.pcs, [0, 2, 4])
 
 
 if __name__ == "__main__":

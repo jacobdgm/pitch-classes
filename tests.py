@@ -357,7 +357,7 @@ class PitchClassSequenceTest(unittest.TestCase):
         self.assertEqual(returned_1.intervals, [10, 11])
 
 
-class IntervalsSequenceTest(unittest.TestCase):
+class IntervalSequenceTest(unittest.TestCase):
     def test_melody(self):
         test_sequence_0 = IntervalSequence([1, 2])
         returned_0 = test_sequence_0.melody(0)
@@ -365,6 +365,39 @@ class IntervalsSequenceTest(unittest.TestCase):
         self.assertEqual(returned_0.pcs, [0, 1, 3])
         returned_1 = test_sequence_0.melody(11)
         self.assertEqual(returned_1.pcs, [11, 0, 2])
+
+    def test_private_inverted(self):
+        test_sequence_0 = IntervalSequence([1, 4])
+        returned_0 = test_sequence_0._inverted()
+        self.assertIsInstance(returned_0, list)
+        self.assertEqual(returned_0, [11, 8])
+
+    def test_inverted(self):
+        test_sequence_0 = IntervalSequence([1, 5])
+        returned_0 = test_sequence_0.inverted()
+        self.assertIsInstance(returned_0, IntervalSequence)
+        self.assertEqual(returned_0.intervals, [11, 7])
+
+    def test_invert(self):
+        test_sequence_0 = IntervalSequence([1, 6])
+        test_sequence_0.invert()
+        self.assertEqual(test_sequence_0.intervals, [11, 6])
+    def test_private_retrograded(self):
+        test_sequence_0 = IntervalSequence([1, 4])
+        returned_0 = test_sequence_0._retrograded()
+        self.assertIsInstance(returned_0, list)
+        self.assertEqual(returned_0, [8, 11])
+
+    def test_retrograded(self):
+        test_sequence_0 = IntervalSequence([1, 5])
+        returned_0 = test_sequence_0.retrograded()
+        self.assertIsInstance(returned_0, IntervalSequence)
+        self.assertEqual(returned_0.intervals, [7, 11])
+
+    def test_retrograde(self):
+        test_sequence_0 = IntervalSequence([1, 6])
+        test_sequence_0.retrograde()
+        self.assertEqual(test_sequence_0.intervals, [6, 11])
 
 
 class FunctionsTest(unittest.TestCase):

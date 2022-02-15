@@ -256,6 +256,25 @@ class IntervalSequence:
             mel.append((mel[-1] + i) % self.univ)
         return PitchClassSequence(mel, self.univ)
 
+    def _inverted(self):
+        return [(0 - i) % self.univ for i in self.intervals]
+
+    def inverted(self):
+        return IntervalSequence(self._inverted(), univ=self.univ)
+
+    def invert(self):
+        self.intervals = self._inverted()
+
+    def _retrograded(self):
+        inverted = self._inverted()  # intervals flip when reversed
+        return inverted[::-1]
+
+    def retrograded(self):
+        return IntervalSequence(self._retrograded(), univ=self.univ)
+
+    def retrograde(self):
+        self.intervals = self._retrograded()
+
 
 def aggregate(univ=PC_UNIVERSE):
     return PitchClassSet([x for x in range(univ)], univ=univ)

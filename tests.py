@@ -382,6 +382,7 @@ class IntervalSequenceTest(unittest.TestCase):
         test_sequence_0 = IntervalSequence([1, 6])
         test_sequence_0.invert()
         self.assertEqual(test_sequence_0.intervals, [11, 6])
+
     def test_private_retrograded(self):
         test_sequence_0 = IntervalSequence([1, 4])
         returned_0 = test_sequence_0._retrograded()
@@ -398,6 +399,25 @@ class IntervalSequenceTest(unittest.TestCase):
         test_sequence_0 = IntervalSequence([1, 6])
         test_sequence_0.retrograde()
         self.assertEqual(test_sequence_0.intervals, [6, 11])
+
+    def test_private_as_univ(self):
+        test_sequence_0 = IntervalSequence([2, 6])
+        with self.assertRaises(ValueError):
+            test_sequence_0._as_univ(5)
+        returned_0 = test_sequence_0._as_univ(6)
+        self.assertIsInstance(returned_0, list)
+        self.assertEqual(returned_0, [1, 3])
+
+    def test_as_univ(self):
+        test_sequence_0 = IntervalSequence([2, 6])
+        returned_0 = test_sequence_0.as_univ(18)
+        self.assertIsInstance(returned_0, IntervalSequence)
+        self.assertEqual(returned_0.intervals, [3, 9])
+
+    def test_set_univ(self):
+        test_sequence_0 = IntervalSequence([3, 6])
+        test_sequence_0.set_univ(4)
+        self.assertEqual(test_sequence_0.intervals, [1, 2])
 
 
 class FunctionsTest(unittest.TestCase):

@@ -29,9 +29,10 @@ class PitchClasses:
         if mode == "exception" or mode == "e":
             for pc in new_pcs:
                 if int(pc) != pc:
+                    err = round(pc / multiplier)
                     raise ValueError(
                         "pitch class {} does not exist in a universe of size {}.".format(
-                            pc, u
+                            err, u
                         )
                     )
             return [int(x) for x in new_pcs]
@@ -274,6 +275,24 @@ class IntervalSequence:
 
     def retrograde(self):
         self.intervals = self._retrograded()
+
+    def _as_univ(self, u):
+        multiplier = u / self.univ
+        new_intervals = [x * multiplier for x in self.intervals]
+        for i in new_intervals:
+            if int(i) != i:
+                err = round(i / multiplier)
+                raise ValueError(
+                    "interval {} does not exist in a universe of size {}.".format(err, u)
+                )
+        return [int(x) for x in new_intervals]
+
+    def as_univ(self, u):
+        return IntervalSequence(self._as_univ(u), univ=u)
+
+    def set_univ(self, u):
+        self.intervals = self._as_univ(u)
+        self.univ = u
 
 
 def aggregate(univ=PC_UNIVERSE):

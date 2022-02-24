@@ -141,6 +141,9 @@ class PitchClassSet(PitchClasses):
             vec[i] += vec.pop()
         return IntervalVector(vec, univ=self.univ)
 
+    def copy(self):
+        return PitchClassSet(pcs=self.pcs, univ=self.univ)
+
 
 class PitchClassSequence(PitchClasses):
     def set_pcs(self, pcs):
@@ -227,6 +230,9 @@ class PitchClassSequence(PitchClasses):
             ivals.append((self.pcs[i] - self.pcs[i - 1]) % self.univ)
         return IntervalSequence(ivals, self.univ)
 
+    def copy(self):
+        return PitchClassSequence(pcs=self.pcs, univ=self.univ)
+
 
 class IntervalVector:
     def __init__(self, intervals, univ=0):
@@ -283,7 +289,9 @@ class IntervalSequence:
             if int(i) != i:
                 err = round(i / multiplier)
                 raise ValueError(
-                    "interval {} does not exist in a universe of size {}.".format(err, u)
+                    "interval {} does not exist in a universe of size {}.".format(
+                        err, u
+                    )
                 )
         return [int(x) for x in new_intervals]
 
@@ -293,6 +301,40 @@ class IntervalSequence:
     def set_univ(self, u):
         self.intervals = self._as_univ(u)
         self.univ = u
+
+    def copy(self):
+        return IntervalSequence(intervals=self.intervals, univ=self.univ)
+
+
+class SetSequence:
+    def __init__(self, pc_sets, univ=12):
+        self.univ = univ
+        self.pc_sets = self._parse_sets(pc_sets)
+
+    def _parse_sets(self, input):
+        sequence = []
+        if not (isinstance(input, list) or isinstance(input, tuple)):
+            t = type(input)
+            message = "pc_sets must be of type list or tuple; received {}".format(t)
+            raise TypeError(message)
+        for element in input:
+            if isinstance(element, PitchClassSet):
+                sequence.append(element.copy())
+            elif (
+                isinstance(element, list)
+                or isinstance(element, tuple)
+                or isinstance(element, set)
+            ):
+                sequence.append(PitchClassSet(element, univ=self.univ))
+            elif isinstance(element, int):
+                sequence.append(PitchClassSet([element], univ=self.univ))
+            else:
+                t = type(element)
+                message = "All elements of pc_sets must be of type PitchClassSet, list, tuple, set, or int; received {}".format(
+                    t
+                )
+                raise TypeError(message)
+        return sequence
 
 
 def aggregate(univ=PC_UNIVERSE):

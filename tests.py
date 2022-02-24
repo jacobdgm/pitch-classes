@@ -4,6 +4,7 @@ from pitchclasses import (
     PitchClassSequence,
     IntervalVector,
     IntervalSequence,
+    SetSequence,
     aggregate,
     maximally_distributed,
 )
@@ -199,6 +200,13 @@ class PitchClassSetTest(unittest.TestCase):
         returned_1 = test_set_1.vector()
         self.assertEqual(returned_1.intervals, [2, 5, 4, 3, 6, 1])
 
+    def test_copy(self):
+        test_set_0 = PitchClassSet([0])
+        returned_0 = test_set_0.copy()
+        self.assertIsInstance(returned_0, PitchClassSet)
+        test_set_0.set_pcs([0, 1])
+        self.assertEqual(returned_0.pcs, [0])
+
 
 class PitchClassSequenceTest(unittest.TestCase):
     def test_init(self):
@@ -355,6 +363,13 @@ class PitchClassSequenceTest(unittest.TestCase):
         test_sequence_1 = PitchClassSequence([3, 1, 0])
         returned_1 = test_sequence_1.intervals()
         self.assertEqual(returned_1.intervals, [10, 11])
+        
+    def test_copy(self):
+        test_sequence_0 = PitchClassSequence([0])
+        returned_0 = test_sequence_0.copy()
+        self.assertIsInstance(returned_0, PitchClassSequence)
+        test_sequence_0.set_pcs([0, 1])
+        self.assertEqual(returned_0.pcs, [0])
 
 
 class IntervalSequenceTest(unittest.TestCase):
@@ -418,6 +433,30 @@ class IntervalSequenceTest(unittest.TestCase):
         test_sequence_0 = IntervalSequence([3, 6])
         test_sequence_0.set_univ(4)
         self.assertEqual(test_sequence_0.intervals, [1, 2])
+        
+    def test_copy(self):
+        test_sequence_0 = IntervalSequence([0])
+        returned_0 = test_sequence_0.copy()
+        self.assertIsInstance(returned_0, IntervalSequence)
+        test_sequence_0.invert()
+        self.assertEqual(returned_0.intervals, [0])
+
+
+class SetSequenceTest(unittest.TestCase):
+    def test_init(self):
+        test_sequence_0 = SetSequence([0, (1), (2, 3), [4], [5, 6], {7}, {8, 9}])
+        for i in range(7):
+            self.assertIsInstance(test_sequence_0.pc_sets[i], PitchClassSet)
+        mutable_set = PitchClassSet([0, 1, 2])
+        test_sequence_1 = SetSequence([mutable_set])
+        mutable_set.set_pcs([4, 5])
+        self.assertEqual(test_sequence_1.pc_sets[0].pcs, [0, 1, 2])
+        with self.assertRaises(TypeError):
+            test_sequence_2 = SetSequence(0)
+        with self.assertRaises(TypeError):
+            test_sequence_3 = SetSequence({0})
+        with self.assertRaises(TypeError):
+            test_sequence_4 = SetSequence((0, "one"))
 
 
 class FunctionsTest(unittest.TestCase):

@@ -207,6 +207,27 @@ class PitchClassSetTest(unittest.TestCase):
         test_set_0.set_pcs([0, 1])
         self.assertEqual(returned_0.pcs, [0])
 
+    def test_private_minimized_univ(self):
+        test_set_0 = PitchClassSet([0, 3, 9])
+        pcs, univ = test_set_0._minimized_univ()
+        self.assertIsInstance(pcs, list)
+        self.assertEqual(pcs, [0, 1, 3])
+        self.assertIsInstance(univ, int)
+        self.assertEqual(univ, 4)
+
+    def test_minimized_univ(self):
+        test_set_0 = PitchClassSet([0, 2, 4])
+        returned_0 = test_set_0.minimized_univ()
+        self.assertIsInstance(returned_0, PitchClassSet)
+        self.assertEqual(returned_0.pcs, [0, 1, 2])
+        self.assertEqual(returned_0.univ, 6)
+
+    def test_minimize_univ(self):
+        test_set_0 = PitchClassSet([0, 3, 6])
+        test_set_0.minimize_univ()
+        self.assertEqual(test_set_0.pcs, [0, 1, 2])
+        self.assertEqual(test_set_0.univ, 4)
+
 
 class PitchClassSequenceTest(unittest.TestCase):
     def test_init(self):
@@ -363,13 +384,26 @@ class PitchClassSequenceTest(unittest.TestCase):
         test_sequence_1 = PitchClassSequence([3, 1, 0])
         returned_1 = test_sequence_1.intervals()
         self.assertEqual(returned_1.intervals, [10, 11])
-        
+
     def test_copy(self):
         test_sequence_0 = PitchClassSequence([0])
         returned_0 = test_sequence_0.copy()
         self.assertIsInstance(returned_0, PitchClassSequence)
         test_sequence_0.set_pcs([0, 1])
         self.assertEqual(returned_0.pcs, [0])
+
+    def test_minimized_univ(self):
+        test_sequence_0 = PitchClassSequence([0, 4, 2, 0])
+        returned_0 = test_sequence_0.minimized_univ()
+        self.assertIsInstance(returned_0, PitchClassSequence)
+        self.assertEqual(returned_0.pcs, [0, 2, 1, 0])
+        self.assertEqual(returned_0.univ, 6)
+
+    def test_minimize_univ(self):
+        test_sequence_0 = PitchClassSequence([0, 6, 3, 0])
+        test_sequence_0.minimize_univ()
+        self.assertEqual(test_sequence_0.pcs, [0, 2, 1, 0])
+        self.assertEqual(test_sequence_0.univ, 4)
 
 
 class IntervalSequenceTest(unittest.TestCase):
@@ -433,7 +467,7 @@ class IntervalSequenceTest(unittest.TestCase):
         test_sequence_0 = IntervalSequence([3, 6])
         test_sequence_0.set_univ(4)
         self.assertEqual(test_sequence_0.intervals, [1, 2])
-        
+
     def test_copy(self):
         test_sequence_0 = IntervalSequence([0])
         returned_0 = test_sequence_0.copy()

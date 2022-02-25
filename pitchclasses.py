@@ -1,4 +1,4 @@
-from math import ceil, floor
+from math import ceil, floor, gcd
 
 PC_UNIVERSE = 12
 
@@ -44,6 +44,11 @@ class PitchClasses:
             return [round(x) for x in new_pcs]
         elif mode == "floor" or mode == "f":
             return [floor(x) for x in new_pcs]
+
+    def _minimized_univ(self):
+        divisor = gcd(*self.pcs, self.univ)
+        new_univ = self.univ // divisor
+        return self._as_univ(new_univ, mode="e"), new_univ
 
 
 class PitchClassSet(PitchClasses):
@@ -144,6 +149,15 @@ class PitchClassSet(PitchClasses):
     def copy(self):
         return PitchClassSet(pcs=self.pcs, univ=self.univ)
 
+    def minimized_univ(self):
+        new_pcs, new_univ = self._minimized_univ()
+        return PitchClassSet(new_pcs, univ=new_univ)
+
+    def minimize_univ(self):
+        new_pcs, new_univ = self._minimized_univ()
+        self.univ = new_univ
+        self.pcs = new_pcs
+
 
 class PitchClassSequence(PitchClasses):
     def set_pcs(self, pcs):
@@ -232,6 +246,15 @@ class PitchClassSequence(PitchClasses):
 
     def copy(self):
         return PitchClassSequence(pcs=self.pcs, univ=self.univ)
+
+    def minimized_univ(self):
+        new_pcs, new_univ = self._minimized_univ()
+        return PitchClassSequence(new_pcs, univ=new_univ)
+
+    def minimize_univ(self):
+        new_pcs, new_univ = self._minimized_univ()
+        self.univ = new_univ
+        self.pcs = new_pcs
 
 
 class IntervalVector:

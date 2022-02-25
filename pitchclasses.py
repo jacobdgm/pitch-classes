@@ -1,4 +1,4 @@
-from math import ceil, floor, gcd
+from math import ceil, floor, gcd, lcm
 
 PC_UNIVERSE = 12
 
@@ -60,37 +60,67 @@ class PitchClassSet(PitchClasses):
     def __repr__(self):
         return "PitchClassSet {}{}".format(self.univ, self.pcs)
 
-    def __sub__(self, pc_set):
-        exception = self._check_valid_pitch_class_set(pc_set)
-        if exception is not None:
-            raise exception
-        else:
-            difference = set(self.pcs) - set(pc_set.pcs)
-            return PitchClassSet(difference)
+    def _pcs_in_normalized_univ(self, *pc_sets):
+        "return the pitch classes of a collection of pc_sets, scaled so they are all in a pitch class universe of the same size"
+        univs = [pc_set.univ for pc_set in pc_sets]
+        comp_univ = lcm(*univs)
+        return (pc_set._as_univ(comp_univ) for pc_set in pc_sets), comp_univ
 
-    def __and__(self, pc_set):
-        exception = self._check_valid_pitch_class_set(pc_set)
-        if exception is not None:
-            raise exception
-        else:
-            intersection = set(self.pcs) & set(pc_set.pcs)
-            return PitchClassSet(intersection)
+    def __lt__(self, pc_set):
+        (self_pcs, arg_pcs), _ = self._pcs_in_normalized_univ(self, pc_set)
+        return self_pcs < arg_pcs
 
-    def __xor__(self, pc_set):
-        exception = self._check_valid_pitch_class_set(pc_set)
-        if exception is not None:
-            raise exception
-        else:
-            sym_diff = set(self.pcs) ^ set(pc_set.pcs)
-            return PitchClassSet(sym_diff)
+    def __le__(self, pc_set):
+        (self_pcs, arg_pcs), _ = self._pcs_in_normalized_univ(self, pc_set)
+        return self_pcs <= arg_pcs
 
-    def __or__(self, pc_set):
-        exception = self._check_valid_pitch_class_set(pc_set)
-        if exception is not None:
-            raise exception
-        else:
-            union = set(self.pcs) | set(pc_set.pcs)
-            return PitchClassSet(union)
+    def __eq__(self, pc_set):
+        (self_pcs, arg_pcs), _ = self._pcs_in_normalized_univ(self, pc_set)
+        return self_pcs == arg_pcs
+
+    def __ne__(self, pc_set):
+        (self_pcs, arg_pcs), _ = self._pcs_in_normalized_univ(self, pc_set)
+        return self_pcs != arg_pcs
+
+    def __gt__(self, pc_set):
+        (self_pcs, arg_pcs), _ = self._pcs_in_normalized_univ(self, pc_set)
+        return self_pcs > arg_pcs
+
+    def __ge__(self, pc_set):
+        (self_pcs, arg_pcs), _ = self._pcs_in_normalized_univ(self, pc_set)
+        return self_pcs >= arg_pcs
+
+    # def __sub__(self, pc_set):
+    #     exception = self._check_valid_pitch_class_set(pc_set)
+    #     if exception is not None:
+    #         raise exception
+    #     else:
+    #         difference = set(self.pcs) - set(pc_set.pcs)
+    #         return PitchClassSet(difference)
+
+    # def __and__(self, pc_set):
+    #     exception = self._check_valid_pitch_class_set(pc_set)
+    #     if exception is not None:
+    #         raise exception
+    #     else:
+    #         intersection = set(self.pcs) & set(pc_set.pcs)
+    #         return PitchClassSet(intersection)
+
+    # def __xor__(self, pc_set):
+    #     exception = self._check_valid_pitch_class_set(pc_set)
+    #     if exception is not None:
+    #         raise exception
+    #     else:
+    #         sym_diff = set(self.pcs) ^ set(pc_set.pcs)
+    #         return PitchClassSet(sym_diff)
+
+    # def __or__(self, pc_set):
+    #     exception = self._check_valid_pitch_class_set(pc_set)
+    #     if exception is not None:
+    #         raise exception
+    #     else:
+    #         union = set(self.pcs) | set(pc_set.pcs)
+    #         return PitchClassSet(union)
 
     def _check_valid_pitch_class_set(self, pc_set):
         if not isinstance(pc_set, PitchClassSet):

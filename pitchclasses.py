@@ -334,6 +334,15 @@ class SetSequence:
         self.univ = univ
         self.pc_sets = self._parse_sets(pc_sets)
 
+    def __repr__(self):
+        sets_repr = []
+        for s in self.pc_sets:
+            if s.cardinality == 1:
+                sets_repr.append(s.pcs[0])
+            else:
+                sets_repr.append(s.pcs)
+        return "SetSequence {}{}".format(sets_repr, self.univ)
+
     def _parse_sets(self, input):
         sequence = []
         if not (isinstance(input, list) or isinstance(input, tuple)):

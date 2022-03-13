@@ -27,57 +27,51 @@ class PitchClassSetTest(unittest.TestCase):
         self.assertEqual(test_set.pcs, [0, 1])  # pcs should be sorted
         self.assertEqual(test_set.cardinality, 2)
 
-    @unittest.skip('refactoring')
     def test_magic_sub(self):
         test_set_0 = PitchClassSet([0, 1, 2])
-        with self.assertRaises(TypeError):
-            test_set_0 - 1
         test_set_1 = PitchClassSet([2, 3])
         returned_0 = test_set_0 - test_set_1
         self.assertIsInstance(returned_0, PitchClassSet)
         self.assertEqual(returned_0.pcs, [0, 1])
-        test_set_2 = PitchClassSet([1, 2], univ=4)
-        with self.assertRaises(ValueError):
-            test_set_0 - test_set_2
+        test_set_2 = PitchClassSet([0, 1], univ=6)
+        returned_1 = test_set_0 - test_set_2
+        self.assertEqual(returned_1.pcs, [1])
 
-    @unittest.skip('refactoring')
     def test_magic_and(self):
         test_set_0 = PitchClassSet([0, 1, 2])
-        with self.assertRaises(TypeError):
-            test_set_0 & 1
         test_set_1 = PitchClassSet([1, 2, 3])
         returned_0 = test_set_0 & test_set_1
         self.assertIsInstance(returned_0, PitchClassSet)
         self.assertEqual(returned_0.pcs, [1, 2])
         test_set_2 = PitchClassSet([1, 2], univ=4)
-        with self.assertRaises(ValueError):
-            test_set_0 & test_set_2
+        returned_1 = test_set_1 & test_set_2
+        self.assertEqual(returned_1.pcs, [3])
 
-    @unittest.skip('refactoring')
     def test_magic_xor(self):
         test_set_0 = PitchClassSet([0, 1, 2])
-        with self.assertRaises(TypeError):
-            test_set_0 ^ 1
         test_set_1 = PitchClassSet([1, 2, 3])
         returned_0 = test_set_0 ^ test_set_1
         self.assertIsInstance(returned_0, PitchClassSet)
         self.assertEqual(returned_0.pcs, [0, 3])
-        test_set_2 = PitchClassSet([1, 2], univ=4)
-        with self.assertRaises(ValueError):
-            test_set_0 ^ test_set_2
+        test_set_2 = PitchClassSet([0, 1], univ=4)
+        returned_1 = test_set_0 ^ test_set_2
+        self.assertEqual(returned_1.pcs, [1, 2, 3])
 
-    @unittest.skip('refactoring')
     def test_magic_or(self):
         test_set_0 = PitchClassSet([0, 1, 2])
-        with self.assertRaises(TypeError):
-            test_set_0 | 1
         test_set_1 = PitchClassSet([1, 2, 3])
         returned_0 = test_set_0 | test_set_1
         self.assertIsInstance(returned_0, PitchClassSet)
         self.assertEqual(returned_0.pcs, [0, 1, 2, 3])
+        self.assertEqual(returned_0.univ, 12)
         test_set_2 = PitchClassSet([1, 2], univ=4)
-        with self.assertRaises(ValueError):
-            test_set_0 | test_set_2
+        returned_1 = test_set_0 | test_set_2
+        self.assertEqual(returned_1.pcs, [0, 1, 2, 3, 6])
+        self.assertEqual(returned_1.univ, 12)
+        test_set_3 = PitchClassSet([0, 1], univ=5)
+        returned_2 = test_set_2 | test_set_3
+        self.assertEqual(returned_2.pcs, [0, 4, 5, 10])
+        self.assertEqual(returned_2.univ, 20)
 
     def test_private_transposed(self):
         test_set = PitchClassSet([0, 1, 2])

@@ -15,22 +15,27 @@ class PitchClasses:
         raise NotImplementedError()
 
     def _transposed(self, transposition):
+        "return list of pitch classes, transposed by transposition"
         return [(pc + transposition) % self.univ for pc in self.pcs]
 
     def _inverted(self, axis):
+        "return list of pitch classes, inverted across axis"
         return [(axis - pc) % self.univ for pc in self.pcs]
 
     def _m_transformed(self, multiplier):
+        "return list of pitch classes, multiplied by multiplier"
         return [(pc * multiplier) % self.univ for pc in self.pcs]
 
     def _retrograded(self):
+        "return list of pitch classes in reversed order"
         return list(reversed(self.pcs))
 
     def _as_univ(self, new_univ, mode="e"):
+        "return list of pitch classes, scaled by new_univ"
         multiplier = new_univ / self.univ
         new_pcs = [x * multiplier for x in self.pcs]
 
-        # different options for what to do with pitch classes that do not fit cleanly into new univ
+        # different options for what to do with pitch classes that do not fit cleanly when pitch class universe is resized
         if mode == "e" or mode == "exception":
             for pc in new_pcs:
                 if int(pc) != pc:
@@ -68,7 +73,10 @@ class PitchClassSet(PitchClasses):
         return "PitchClassSet {}{}".format(self.univ, self.pcs)
 
     def _pcs_in_normalized_univ(self, *pc_sets):
-        "return the pitch classes of a collection of pc_sets, scaled so they are all in a pitch class universe of the same size"
+        """This function allows comparison of multiple pc_sets with
+        different pc universe sizes. Returns a tuple consisting of:
+        - lists of pcs in the new pc universe
+        - the size of the new pc universe"""
         univs = [pc_set.univ for pc_set in pc_sets]
         comp_univ = lcm(*univs)
         return (pc_set._as_univ(comp_univ) for pc_set in pc_sets), comp_univ
@@ -97,37 +105,25 @@ class PitchClassSet(PitchClasses):
         (self_pcs, arg_pcs), _ = self._pcs_in_normalized_univ(self, pc_set)
         return self_pcs >= arg_pcs
 
-    # def __sub__(self, pc_set):
-    #     exception = self._check_valid_pitch_class_set(pc_set)
-    #     if exception is not None:
-    #         raise exception
-    #     else:
-    #         difference = set(self.pcs) - set(pc_set.pcs)
-    #         return PitchClassSet(difference)
+    def __sub__(self, pc_set):
+        (self_pcs, arg_pcs), univ = self._pcs_in_normalized_univ(self, pc_set)
+        difference = set(self_pcs) - set(arg_pcs)
+        return PitchClassSet(difference, univ)
 
-    # def __and__(self, pc_set):
-    #     exception = self._check_valid_pitch_class_set(pc_set)
-    #     if exception is not None:
-    #         raise exception
-    #     else:
-    #         intersection = set(self.pcs) & set(pc_set.pcs)
-    #         return PitchClassSet(intersection)
+    def __and__(self, pc_set):
+        (self_pcs, arg_pcs), univ = self._pcs_in_normalized_univ(self, pc_set)
+        sum_ = set(self_pcs) & set(arg_pcs)
+        return PitchClassSet(sum_, univ)
 
-    # def __xor__(self, pc_set):
-    #     exception = self._check_valid_pitch_class_set(pc_set)
-    #     if exception is not None:
-    #         raise exception
-    #     else:
-    #         sym_diff = set(self.pcs) ^ set(pc_set.pcs)
-    #         return PitchClassSet(sym_diff)
+    def __xor__(self, pc_set):
+        (self_pcs, arg_pcs), univ = self._pcs_in_normalized_univ(self, pc_set)
+        sym_diff = set(self_pcs) ^ set(arg_pcs)
+        return PitchClassSet(sym_diff, univ)
 
-    # def __or__(self, pc_set):
-    #     exception = self._check_valid_pitch_class_set(pc_set)
-    #     if exception is not None:
-    #         raise exception
-    #     else:
-    #         union = set(self.pcs) | set(pc_set.pcs)
-    #         return PitchClassSet(union)
+    def __or__(self, pc_set):
+        (self_pcs, arg_pcs), univ = self._pcs_in_normalized_univ(self, pc_set)
+        union = set(self_pcs) | set(arg_pcs)
+        return PitchClassSet(union, univ)
 
     def _check_valid_pitch_class_set(self, pc_set):
         if not isinstance(pc_set, PitchClassSet):

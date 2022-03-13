@@ -1,6 +1,6 @@
 from math import ceil, floor, gcd, lcm
 
-PC_UNIVERSE = 12
+PC_UNIVERSE = 12  # default is 12 tone equal temperament
 
 
 class PitchClasses:
@@ -11,39 +11,46 @@ class PitchClasses:
             self.univ = univ
         self.set_pcs(pcs)
 
-    def _transposed(self, i):
-        return [(self.pcs[x] + i) % self.univ for x, _ in enumerate(self.pcs)]
+    def set_pcs(self):
+        raise NotImplementedError()
 
-    def _inverted(self, i):
-        return [(i - pc) % self.univ for pc in self.pcs]
+    def _transposed(self, transposition):
+        return [(pc + transposition) % self.univ for pc in self.pcs]
 
-    def _m_transformed(self, i):
-        return [(pc * i) % self.univ for pc in self.pcs]
+    def _inverted(self, axis):
+        return [(axis - pc) % self.univ for pc in self.pcs]
+
+    def _m_transformed(self, multiplier):
+        return [(pc * multiplier) % self.univ for pc in self.pcs]
 
     def _retrograded(self):
-        return self.pcs[::-1]
+        return list(reversed(self.pcs))
 
-    def _as_univ(self, u, mode="e"):
-        multiplier = u / self.univ
+    def _as_univ(self, new_univ, mode="e"):
+        multiplier = new_univ / self.univ
         new_pcs = [x * multiplier for x in self.pcs]
-        if mode == "exception" or mode == "e":
+
+        # different options for what to do with pitch classes that do not fit cleanly into new univ
+        if mode == "e" or mode == "exception":
             for pc in new_pcs:
                 if int(pc) != pc:
                     err = round(pc / multiplier)
                     raise ValueError(
                         "pitch class {} does not exist in a universe of size {}.".format(
-                            err, u
+                            err, new_univ
                         )
                     )
             return [int(x) for x in new_pcs]
-        elif mode == "drop" or mode == "d":
+        elif mode == "d" or mode == "drop":
             return [int(x) for x in new_pcs if x == int(x)]
-        elif mode == "ceiling" or mode == "ceil" or mode == "c":
+        elif mode == "c" or mode == "ceil" or mode == "ceiling":
             return [ceil(x) for x in new_pcs]
-        elif mode == "round" or mode == "r":
+        elif mode == "r" or mode == "round":
             return [round(x) for x in new_pcs]
-        elif mode == "floor" or mode == "f":
+        elif mode == "f" or mode == "floor":
             return [floor(x) for x in new_pcs]
+        else:
+            raise ValueError("invalid mode")
 
     def _minimized_univ(self):
         divisor = gcd(*self.pcs, self.univ)
@@ -131,30 +138,30 @@ class PitchClassSet(PitchClasses):
             )
         return None
 
-    def transposed(self, i):
-        return PitchClassSet(self._transposed(i), univ=self.univ)
+    def transposed(self, transposition):
+        return PitchClassSet(self._transposed(transposition), univ=self.univ)
 
-    def transpose(self, i):
-        self.set_pcs(self._transposed(i))
+    def transpose(self, transposition):
+        self.set_pcs(self._transposed(transposition))
 
-    def inverted(self, i):
-        return PitchClassSet(self._inverted(i), univ=self.univ)
+    def inverted(self, axis):
+        return PitchClassSet(self._inverted(axis), univ=self.univ)
 
-    def invert(self, i):
-        self.set_pcs(self._inverted(i))
+    def invert(self, axis):
+        self.set_pcs(self._inverted(axis))
 
-    def m_transformed(self, i):
-        return PitchClassSet(self._m_transformed(i), univ=self.univ)
+    def m_transformed(self, multiplier):
+        return PitchClassSet(self._m_transformed(multiplier), univ=self.univ)
 
-    def m_transform(self, i):
-        self.set_pcs(self._m_transformed(i))
+    def m_transform(self, multiplier):
+        self.set_pcs(self._m_transformed(multiplier))
 
-    def as_univ(self, u, mode="e"):
-        return PitchClassSet(self._as_univ(u, mode=mode), univ=u)
+    def as_univ(self, new_univ, mode="e"):
+        return PitchClassSet(self._as_univ(new_univ, mode=mode), univ=new_univ)
 
-    def set_univ(self, u, mode="e"):
-        new_pcs = self._as_univ(u, mode=mode)
-        self.univ = u
+    def set_univ(self, new_univ, mode="e"):
+        new_pcs = self._as_univ(new_univ, mode=mode)
+        self.univ = new_univ
         self.set_pcs(new_pcs)
 
     def complement(self):
@@ -232,23 +239,23 @@ class PitchClassSequence(PitchClasses):
             )
         return None
 
-    def transposed(self, i):
-        return PitchClassSequence(self._transposed(i), univ=self.univ)
+    def transposed(self, transposition):
+        return PitchClassSequence(self._transposed(transposition), univ=self.univ)
 
-    def transpose(self, i):
-        self.set_pcs(self._transposed(i))
+    def transpose(self, transposition):
+        self.set_pcs(self._transposed(transposition))
 
-    def inverted(self, i):
-        return PitchClassSequence(self._inverted(i), univ=self.univ)
+    def inverted(self, axis):
+        return PitchClassSequence(self._inverted(axis), univ=self.univ)
 
-    def invert(self, i):
-        self.set_pcs(self._inverted(i))
+    def invert(self, axis):
+        self.set_pcs(self._inverted(axis))
 
-    def m_transformed(self, i):
-        return PitchClassSequence(self._m_transformed(i), univ=self.univ)
+    def m_transformed(self, multiplier):
+        return PitchClassSequence(self._m_transformed(multiplier), univ=self.univ)
 
-    def m_transform(self, i):
-        self.set_pcs(self._m_transformed(i))
+    def m_transform(self, multiplier):
+        self.set_pcs(self._m_transformed(multiplier))
 
     def retrograded(self):
         return PitchClassSequence(self._retrograded(), univ=self.univ)
@@ -256,12 +263,12 @@ class PitchClassSequence(PitchClasses):
     def retrograde(self):
         self.set_pcs(self._retrograded())
 
-    def as_univ(self, u, mode="e"):
-        return PitchClassSequence(self._as_univ(u, mode=mode), univ=u)
+    def as_univ(self, new_univ, mode="e"):
+        return PitchClassSequence(self._as_univ(new_univ, mode=mode), univ=new_univ)
 
-    def set_univ(self, u, mode="e"):
-        new_pcs = self._as_univ(u, mode=mode)
-        self.univ = u
+    def set_univ(self, new_univ, mode="e"):
+        new_pcs = self._as_univ(new_univ, mode=mode)
+        self.univ = new_univ
         self.set_pcs(new_pcs)
 
     def pc_inventory(self):

@@ -129,8 +129,8 @@ class PitchClassSet(PitchClasses):
         if not isinstance(pc_set, PitchClassSet):
             return TypeError("Only a PitchClassSet can be compared to a PitchClassSet")
         elif pc_set.univ != self.univ:
-            return ValueError(
-                "Cannot compare PitchClassSets with different values of .univ"
+            return NotImplementedError(
+                "Cannot compare PitchClassSets with different values of .univ in this way"
             )
         return None
 
@@ -230,8 +230,8 @@ class PitchClassSequence(PitchClasses):
                 "Only a PitchClassSequence can be compared to a PitchClassSequence"
             )
         elif pc_sequence.univ != self.univ:
-            return ValueError(
-                "Cannot compare PitchClassSequences with different values of .univ"
+            return NotImplementedError(
+                "Cannot compare PitchClassSequences with different values of .univ in this way"
             )
         return None
 
@@ -330,7 +330,7 @@ class IntervalSequence:
 
     def _retrograded(self):
         inverted = self._inverted()  # intervals flip when reversed
-        return inverted[::-1]
+        return list(reversed(inverted))
 
     def retrograded(self):
         return IntervalSequence(self._retrograded(), univ=self.univ)
@@ -338,25 +338,25 @@ class IntervalSequence:
     def retrograde(self):
         self.intervals = self._retrograded()
 
-    def _as_univ(self, u):
-        multiplier = u / self.univ
+    def _as_univ(self, new_univ):
+        multiplier = new_univ / self.univ
         new_intervals = [x * multiplier for x in self.intervals]
         for i in new_intervals:
             if int(i) != i:
                 err = round(i / multiplier)
                 raise ValueError(
                     "interval {} does not exist in a universe of size {}.".format(
-                        err, u
+                        err, new_univ
                     )
                 )
         return [int(x) for x in new_intervals]
 
-    def as_univ(self, u):
-        return IntervalSequence(self._as_univ(u), univ=u)
+    def as_univ(self, new_univ):
+        return IntervalSequence(self._as_univ(new_univ), new_univ)
 
-    def set_univ(self, u):
-        self.intervals = self._as_univ(u)
-        self.univ = u
+    def set_univ(self, new_univ):
+        self.intervals = self._as_univ(new_univ)
+        self.univ = new_univ
 
     def copy(self):
         return IntervalSequence(intervals=self.intervals, univ=self.univ)
@@ -376,13 +376,13 @@ class SetSequence:
                 sets_repr.append(s.pcs)
         return "SetSequence {}{}".format(sets_repr, self.univ)
 
-    def _parse_sets(self, input):
+    def _parse_sets(self, inp):
         sequence = []
-        if not (isinstance(input, list) or isinstance(input, tuple)):
-            t = type(input)
+        if not (isinstance(inp, list) or isinstance(inp, tuple)):
+            t = type(inp)
             message = "pc_sets must be of type list or tuple; received {}".format(t)
             raise TypeError(message)
-        for element in input:
+        for element in inp:
             if isinstance(element, PitchClassSet):
                 sequence.append(element.copy())
             elif (
@@ -408,5 +408,5 @@ def aggregate(univ=PC_UNIVERSE):
 
 def maximally_distributed(i, univ=PC_UNIVERSE):
     pc_set = aggregate(i)
-    pc_set.set_univ(univ, "f")
+    pc_set.set_univ(univ, "floor")
     return pc_set
